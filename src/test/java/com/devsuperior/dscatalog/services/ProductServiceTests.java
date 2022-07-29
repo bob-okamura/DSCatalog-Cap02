@@ -1,5 +1,11 @@
 package com.devsuperior.dscatalog.services;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,11 +15,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.devsuperior.dscatalog.tests.Factory;
 
 //Usar quando a classe de teste não carrega o contexto da aplicação. 
 //É mais rápido e enxuto. Utiliza-se o @Mock
@@ -29,16 +39,34 @@ public class ProductServiceTests {
 	private long existingId;
 	private long nonExistingId;
 	private long dependentId;
+	private Product product;
+	private PageImpl<Product> page;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		existingId = 1L;
 		nonExistingId = 2L;
 		dependentId = 3L;
+		product = Factory.createProduct();
+		page = new PageImpl<>(List.of(product));
+		
+		when(repository.findAll((Pageable)any())).thenReturn(page); 
+		
+		when(repository.findById(existingId)).thenReturn(Optional.of(product));
+		when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+		
+		when(repository.save(any())).thenReturn(product);
 		
 		Mockito.doNothing().when(repository).deleteById(existingId);
 		Mockito.doThrow(EmptyResultDataAccessException.class).when(repository).deleteById(nonExistingId);;
 		Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
+	}
+	
+	@Test
+	public void findAllPagedShouldReturnPage() {
+		
+		
+		
 	}
 	
 	@Test
