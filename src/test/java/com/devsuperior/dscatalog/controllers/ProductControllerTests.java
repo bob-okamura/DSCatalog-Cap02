@@ -74,7 +74,6 @@ public class ProductControllerTests {
 		doNothing().when(service).delete(existingId);
 		doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
 		doThrow(DatabaseException.class).when(service).delete(dependentId);
-		
 	}
 	
 	@Test
@@ -161,6 +160,5 @@ public class ProductControllerTests {
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isNotFound());
 	}
-	
 	
 }
